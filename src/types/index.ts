@@ -6,14 +6,12 @@ export interface Option {
 }
 
 export type Subject =
-  | 'Indian Polity & Governance'
-  | 'Indian Economy'
-  | 'Environment & Ecology'
-  | 'Science & Technology'
-  | 'History & Culture'
-  | 'Geography & Environment'
-  | 'General Medicine & Paediatrics'
-  | 'Surgery & OBG';
+  | 'General Medicine'
+  | 'Paediatrics'
+  | 'Surgery'
+  | 'Obstetrics & Gynaecology'
+  | 'Preventive & Social Medicine (SPM)'
+  | 'General Ability';
 
 export interface Question {
   id: number;

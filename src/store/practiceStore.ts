@@ -19,7 +19,7 @@ export class PracticeManager {
     Object.values(QUESTIONS_DATABASE).forEach((paperQuestions) => {
       paperQuestions.forEach((q) => {
         if (q.subject === subject) {
-          const coreText = q.text.replace(/\[UPSC CMS \d+ (Paper [I|II] )?Q\d+\]\s*/, '');
+          const coreText = q.text.replace(/\[UPSC CMS \d+ Paper (I|II) Q\d+\]\s*/, '');
           if (!seenTexts.has(coreText)) {
             seenTexts.add(coreText);
             allQuestions.push({
@@ -36,14 +36,12 @@ export class PracticeManager {
 
   static getAllSubjectsWithCounts(): Array<{ subject: Subject; totalQuestions: number }> {
     const subjectList: Subject[] = [
-      'General Medicine & Paediatrics',
-      'Surgery & OBG',
-      'Environment & Ecology',
-      'Indian Polity & Governance',
-      'Indian Economy',
-      'Science & Technology',
-      'History & Culture',
-      'Geography & Environment'
+      'General Medicine',
+      'Paediatrics',
+      'Surgery',
+      'Obstetrics & Gynaecology',
+      'Preventive & Social Medicine (SPM)',
+      'General Ability'
     ];
 
     return subjectList.map((sub) => ({
