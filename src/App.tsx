@@ -11,23 +11,27 @@ import { ScoreCard } from './components/analysis/ScoreCard';
 import { SubjectBreakdown } from './components/analysis/SubjectBreakdown';
 import { QuestionReview } from './components/analysis/QuestionReview';
 import { AuthScreen } from './components/auth/AuthScreen';
+import { SubjectCard } from './components/practice/SubjectCard';
+import { SubjectPracticeEngine } from './components/practice/SubjectPracticeEngine';
 
 import { PAPERS, QUESTIONS_DATABASE } from './data/papers';
 import { ExamManager } from './store/examStore';
 import { AuthManager } from './store/authStore';
-import type { Paper, ExamSession, ExamResult, OptionKey, User } from './types';
-import { ArrowLeft, BookOpen } from 'lucide-react';
+import { PracticeManager } from './store/practiceStore';
+import type { Paper, ExamSession, ExamResult, OptionKey, User, Subject } from './types';
+import { ArrowLeft, BookOpen, Sparkles } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
-  const [view, setView] = useState<'home' | 'test' | 'analysis'>('home');
+  const [view, setView] = useState<'home' | 'test' | 'analysis' | 'practice'>('home');
+  const [homeTab, setHomeTab] = useState<'mock' | 'practice'>('mock');
   const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null);
+  const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [activeSession, setActiveSession] = useState<ExamSession | null>(null);
   const [activeResult, setActiveResult] = useState<ExamResult | null>(null);
   const [resultsHistory, setResultsHistory] = useState<ExamResult[]>([]);
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
 
-  // Load active logged in user session on mount
   useEffect(() => {
     const user = AuthManager.getCurrentUser();
     if (user) {
@@ -36,7 +40,6 @@ export const App: React.FC = () => {
     }
   }, []);
 
-  // Timer interval for active test session
   useEffect(() => {
     if (view !== 'test' || !activeSession || activeSession.isSubmitted || !currentUser) return;
 
@@ -75,6 +78,11 @@ export const App: React.FC = () => {
     setView('home');
   };
 
+  const handleGoHome = (tab?: 'mock' | 'practice') => {
+    if (tab) setHomeTab(tab);
+    setView('home');
+  };
+
   const handleStartTest = (paper: Paper) => {
     if (!currentUser) return;
     setSelectedPaper(paper);
@@ -84,6 +92,11 @@ export const App: React.FC = () => {
     }
     setActiveSession(session);
     setView('test');
+  };
+
+  const handleStartPractice = (subject: Subject) => {
+    setSelectedSubject(subject);
+    setView('practice');
   };
 
   const handleSelectOption = (option: OptionKey) => {
@@ -195,17 +208,19 @@ export const App: React.FC = () => {
     }
   };
 
-  // Auth Gate
   if (!currentUser) {
     return <AuthScreen onAuthSuccess={handleAuthSuccess} />;
   }
+
+  const subjectListWithCounts = PracticeManager.getAllSubjectsWithCounts();
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
       <Navbar
         activeView={view}
+        homeTab={homeTab}
         currentUser={currentUser}
-        onGoHome={() => setView('home')}
+        onGoHome={handleGoHome}
         onLogout={handleLogout}
       />
 
@@ -216,32 +231,84 @@ export const App: React.FC = () => {
             <GlobalStats results={resultsHistory} />
 
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-              <div className="flex items-center justify-between mb-8">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-slate-800">
                 <div>
-                  <h2 className="text-2xl font-bold text-white tracking-tight flex items-center space-x-2">
-                    <BookOpen className="w-6 h-6 text-indigo-400" />
-                    <span>UPSC Yearly Question Papers</span>
+                  <h2 className="text-2xl font-bold text-white tracking-tight">
+                    {homeTab === 'mock' ? 'UPSC Yearly Official Question Papers' : 'Subject-Wise Practice Banks'}
                   </h2>
-                  <p className="text-sm text-slate-400 mt-1">Select any paper below to attempt live simulated exam tests.</p>
+                  <p className="text-sm text-slate-400 mt-1">
+                    {homeTab === 'mock'
+                      ? 'Select any paper below to attempt live simulated 2-hour official tests.'
+                      : 'Select a subject below for topic revision with instant answer feedback and clinical rationale.'}
+                  </p>
+                </div>
+
+                <div className="flex items-center space-x-2 bg-slate-900 p-1.5 rounded-2xl border border-slate-800 self-start sm:self-auto">
+                  <button
+                    onClick={() => setHomeTab('mock')}
+                    className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      homeTab === 'mock' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <BookOpen className="w-4 h-4" />
+                    <span>Full Mock Exams</span>
+                  </button>
+
+                  <button
+                    onClick={() => setHomeTab('practice')}
+                    className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                      homeTab === 'practice' ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-600/30' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <Sparkles className="w-4 h-4 text-cyan-300" />
+                    <span>Subject Practice</span>
+                  </button>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {PAPERS.map((paper) => {
-                  const latestRes = resultsHistory.find((r) => r.paperId === paper.id);
-                  return (
-                    <PaperCard
-                      key={paper.id}
-                      paper={paper}
-                      latestResult={latestRes}
-                      onStartTest={handleStartTest}
-                      onViewAnalysis={handleViewAnalysis}
-                    />
-                  );
-                })}
-              </div>
+              {homeTab === 'mock' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {PAPERS.map((paper) => {
+                    const latestRes = resultsHistory.find((r) => r.paperId === paper.id);
+                    return (
+                      <PaperCard
+                        key={paper.id}
+                        paper={paper}
+                        latestResult={latestRes}
+                        onStartTest={handleStartTest}
+                        onViewAnalysis={handleViewAnalysis}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+
+              {homeTab === 'practice' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {subjectListWithCounts.map((item) => {
+                    const progress = PracticeManager.getProgress(currentUser.id, item.subject);
+                    return (
+                      <SubjectCard
+                        key={item.subject}
+                        subject={item.subject}
+                        totalQuestions={item.totalQuestions}
+                        progress={progress}
+                        onStartPractice={handleStartPractice}
+                      />
+                    );
+                  })}
+                </div>
+              )}
             </section>
           </div>
+        )}
+
+        {view === 'practice' && selectedSubject && currentUser && (
+          <SubjectPracticeEngine
+            userId={currentUser.id}
+            subject={selectedSubject}
+            onBack={() => setView('home')}
+          />
         )}
 
         {view === 'test' && selectedPaper && activeSession && (
