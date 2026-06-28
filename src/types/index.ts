@@ -10,8 +10,7 @@ export type Subject =
   | 'Paediatrics'
   | 'Surgery'
   | 'Obstetrics & Gynaecology'
-  | 'Preventive & Social Medicine (SPM)'
-  | 'General Ability';
+  | 'Preventive & Social Medicine (SPM)';
 
 export interface Question {
   id: number;

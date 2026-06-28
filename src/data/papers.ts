@@ -16,7 +16,7 @@ YEARS.forEach((yr) => {
     marksPerQuestion: 2.083,
     negativeMarking: 0.69,
     durationMinutes: 120,
-    description: `Official 2-Hour Paper I for ${yr} featuring 120 questions across General Medicine and Paediatrics.`
+    description: `Official 2-Hour Paper I for ${yr} featuring 120 questions across General Medicine (96 MCQs) and Paediatrics (24 MCQs).`
   });
 
   // Paper II: Surgery (40 Qs) + OBGY (40 Qs) + SPM (40 Qs)
@@ -30,11 +30,11 @@ YEARS.forEach((yr) => {
     marksPerQuestion: 2.083,
     negativeMarking: 0.69,
     durationMinutes: 120,
-    description: `Official 2-Hour Paper II for ${yr} featuring 120 questions across Surgery, Obstetrics & Gynaecology, and Preventive & Social Medicine.`
+    description: `Official 2-Hour Paper II for ${yr} featuring 120 questions across Surgery (40 MCQs), Obstetrics & Gynaecology (40 MCQs), and Preventive & Social Medicine (40 MCQs).`
   });
 });
 
-// Master clinical templates for the 6 exact UPSC CMS subjects
+// Master clinical templates for the 5 exact core UPSC CMS medical subjects
 const CMS_SUBJECT_TEMPLATES: Record<Subject, Array<{ text: string; options: string[]; correct: 'A' | 'B' | 'C' | 'D'; explanation: string; difficulty: 'Easy' | 'Medium' | 'Hard' }>> = {
   'General Medicine': [
     {
@@ -122,15 +122,6 @@ const CMS_SUBJECT_TEMPLATES: Record<Subject, Array<{ text: string; options: stri
       explanation: "Kernig sign is positive when thigh is flexed at right angles to trunk and extension at knee meets resistance due to meningeal irritation.",
       difficulty: "Easy"
     }
-  ],
-  'General Ability': [
-    {
-      text: "To whom does the President of India address his resignation letter under constitutional provisions?",
-      options: ["The Prime Minister of India", "The Chief Justice of India", "The Speaker of Lok Sabha", "The Vice-President of India"],
-      correct: "D",
-      explanation: "Under Article 56(1)(a) of the Indian Constitution, the President of India addresses his resignation letter to the Vice-President of India.",
-      difficulty: "Easy"
-    }
   ]
 };
 
@@ -141,7 +132,6 @@ YEARS.forEach((yr) => {
   const p1Id = `upsc-cms-${yr}-p1`;
   const p1List: Question[] = [];
   for (let qNum = 1; qNum <= 120; qNum++) {
-    // 80% General Medicine, 20% Paediatrics
     const sub: Subject = qNum <= 96 ? 'General Medicine' : 'Paediatrics';
     const tpls = CMS_SUBJECT_TEMPLATES[sub];
     const tpl = tpls[(qNum - 1) % tpls.length];
@@ -166,8 +156,7 @@ YEARS.forEach((yr) => {
   for (let qNum = 1; qNum <= 120; qNum++) {
     let sub: Subject = 'Surgery';
     if (qNum > 40 && qNum <= 80) sub = 'Obstetrics & Gynaecology';
-    else if (qNum > 80 && qNum <= 110) sub = 'Preventive & Social Medicine (SPM)';
-    else if (qNum > 110) sub = 'General Ability';
+    else if (qNum > 80) sub = 'Preventive & Social Medicine (SPM)';
 
     const tpls = CMS_SUBJECT_TEMPLATES[sub];
     const tpl = tpls[(qNum - 1) % tpls.length];

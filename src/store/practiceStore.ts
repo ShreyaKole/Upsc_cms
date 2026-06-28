@@ -40,8 +40,7 @@ export class PracticeManager {
       'Paediatrics',
       'Surgery',
       'Obstetrics & Gynaecology',
-      'Preventive & Social Medicine (SPM)',
-      'General Ability'
+      'Preventive & Social Medicine (SPM)'
     ];
 
     return subjectList.map((sub) => ({
