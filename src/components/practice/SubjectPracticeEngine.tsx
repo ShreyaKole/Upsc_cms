@@ -30,20 +30,21 @@ export const SubjectPracticeEngine: React.FC<SubjectPracticeEngineProps> = ({
   }
 
   const currentQ = questions[currentIndex];
-  const currentSavedAns = progress.answers[currentQ.id];
+  const qKey = `${currentQ.year}_${currentQ.paper}_${currentQ.id}`;
+  const currentSavedAns = progress.answers[qKey];
   const selectedOption = currentSavedAns?.selectedOption ?? null;
   const isEvaluated = selectedOption !== null;
 
   const handleSelectOption = (option: OptionKey) => {
     if (selectedOption !== null) return;
     const isCorrect = option === currentQ.correctOption;
-    const updatedProgress = PracticeManager.recordAnswer(userId, subject, currentQ.id, option, isCorrect);
+    const updatedProgress = PracticeManager.recordAnswer(userId, subject, qKey, option, isCorrect);
     setProgress(updatedProgress);
   };
 
   const handleResetCurrent = () => {
     const updatedAnswers = { ...progress.answers };
-    delete updatedAnswers[currentQ.id];
+    delete updatedAnswers[qKey];
     const updatedProgress = { ...progress, answers: updatedAnswers };
     setProgress(updatedProgress);
   };
@@ -61,7 +62,7 @@ export const SubjectPracticeEngine: React.FC<SubjectPracticeEngineProps> = ({
 
         <div className="flex items-center space-x-3 text-xs">
           <span className="px-3 py-1.5 rounded-xl bg-cyan-950/80 text-cyan-300 font-bold border border-cyan-800/50 flex items-center gap-1.5">
-            <Sparkles className="w-3.5 h-3.5" /> {subject} Practice
+            <Sparkles className="w-3.5 h-3.5" /> {subject} Bank
           </span>
           <span className="px-3 py-1.5 rounded-xl bg-slate-900 text-slate-300 font-mono font-semibold border border-slate-800">
             {progress.correct} / {progress.attempted} Correct

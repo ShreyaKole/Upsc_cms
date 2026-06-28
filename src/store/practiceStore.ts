@@ -8,25 +8,17 @@ export interface SubjectPracticeProgress {
   totalQuestions: number;
   attempted: number;
   correct: number;
-  answers: Record<number, { selectedOption: 'A' | 'B' | 'C' | 'D'; isCorrect: boolean }>;
+  answers: Record<string, { selectedOption: 'A' | 'B' | 'C' | 'D'; isCorrect: boolean }>;
 }
 
 export class PracticeManager {
   static getSubjectQuestions(subject: Subject): Question[] {
     const allQuestions: Question[] = [];
-    const seenTexts = new Set<string>();
 
     Object.values(QUESTIONS_DATABASE).forEach((paperQuestions) => {
       paperQuestions.forEach((q) => {
         if (q.subject === subject) {
-          const coreText = q.text.replace(/\[UPSC CMS \d+ Paper (I|II) Q\d+\]\s*/, '');
-          if (!seenTexts.has(coreText)) {
-            seenTexts.add(coreText);
-            allQuestions.push({
-              ...q,
-              text: coreText
-            });
-          }
+          allQuestions.push(q);
         }
       });
     });
@@ -76,12 +68,12 @@ export class PracticeManager {
   static recordAnswer(
     userId: string,
     subject: Subject,
-    questionId: number,
+    questionKey: string,
     selectedOption: 'A' | 'B' | 'C' | 'D',
     isCorrect: boolean
   ): SubjectPracticeProgress {
     const progress = this.getProgress(userId, subject);
-    const existingAns = progress.answers[questionId];
+    const existingAns = progress.answers[questionKey];
 
     if (!existingAns) {
       progress.attempted += 1;
@@ -91,7 +83,7 @@ export class PracticeManager {
       else progress.correct = Math.max(0, progress.correct - 1);
     }
 
-    progress.answers[questionId] = { selectedOption, isCorrect };
+    progress.answers[questionKey] = { selectedOption, isCorrect };
 
     try {
       localStorage.setItem(`${PRACTICE_KEY}_${userId}_${subject}`, JSON.stringify(progress));
