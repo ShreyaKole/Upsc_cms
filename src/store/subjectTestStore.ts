@@ -7,8 +7,14 @@ export interface SubjectTestPaper extends Paper {
   testNumber: number;
 }
 
+let cachedSubjectTestPapers: SubjectTestPaper[] | null = null;
+
 export class SubjectTestManager {
   static getSubjectTestPapers(): SubjectTestPaper[] {
+    if (cachedSubjectTestPapers) {
+      return cachedSubjectTestPapers;
+    }
+
     const subjects: Subject[] = [
       'General Medicine',
       'Paediatrics',
@@ -31,7 +37,6 @@ export class SubjectTestManager {
         const subSlug = sub.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-');
         const paperId = `upsc-subjtest-${subSlug}-t${testNum}`;
 
-        // Register questions in QUESTIONS_DATABASE so standard exam engine works seamlessly!
         const reindexedQuestions: Question[] = chunk.map((q, idx) => ({
           ...q,
           id: idx + 1,
@@ -60,6 +65,7 @@ export class SubjectTestManager {
       }
     });
 
+    cachedSubjectTestPapers = generatedPapers;
     return generatedPapers;
   }
 }

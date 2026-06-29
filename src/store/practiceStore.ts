@@ -15,12 +15,15 @@ export class PracticeManager {
   static getSubjectQuestions(subject: Subject): Question[] {
     const allQuestions: Question[] = [];
 
-    Object.values(QUESTIONS_DATABASE).forEach((paperQuestions) => {
-      paperQuestions.forEach((q) => {
-        if (q.subject === subject) {
-          allQuestions.push(q);
-        }
-      });
+    Object.entries(QUESTIONS_DATABASE).forEach(([paperId, paperQuestions]) => {
+      // Aggregate exclusively from official yearly PYQ papers
+      if (!paperId.startsWith('upsc-subjtest-')) {
+        paperQuestions.forEach((q) => {
+          if (q.subject === subject) {
+            allQuestions.push(q);
+          }
+        });
+      }
     });
 
     return allQuestions;
