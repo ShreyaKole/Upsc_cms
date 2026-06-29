@@ -82,6 +82,18 @@ const MEDICINE_POOL = [
     options: ["Sulfasalazine", "Methotrexate", "Hydroxychloroquine", "Leflunomide"],
     correct: "B",
     explanation: "Methotrexate is the anchor DMARD and first-line drug of choice for treating active rheumatoid arthritis."
+  },
+  {
+    text: "Which neurological reflex or sign demonstrates dorsiflexion of the big toe with fanning of other toes upon stroking the lateral plantar surface of the foot?",
+    options: ["Kernig sign", "Babinski sign", "Trousseau sign", "Hoffmann sign"],
+    correct: "B",
+    explanation: "The Babinski sign (extensor plantar response) indicates upper motor neuron lesion."
+  },
+  {
+    text: "A 35-year-old female presents with fatigue, weight gain, cold intolerance, and constipation. Laboratory evaluation reveals elevated serum TSH and low free T4. What is the most common cause?",
+    options: ["Graves disease", "Hashimoto thyroiditis", "Subacute granulomatous thyroiditis", "Toxic multinodular goiter"],
+    correct: "B",
+    explanation: "Hashimoto thyroiditis (chronic autoimmune thyroiditis) is the most common cause of primary hypothyroidism in iodine-sufficient regions."
   }
 ];
 
