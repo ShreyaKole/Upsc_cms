@@ -1,12 +1,12 @@
 import React from 'react';
 import type { User } from '../../types';
-import { BookOpen, LogOut, ShieldCheck, Sparkles, User as UserIcon } from 'lucide-react';
+import { BookOpen, Clock, LogOut, ShieldCheck, Sparkles, User as UserIcon } from 'lucide-react';
 
 interface NavbarProps {
   activeView: 'home' | 'test' | 'analysis' | 'practice';
-  homeTab: 'mock' | 'practice';
+  homeTab: 'mock' | 'practice' | 'subjtest';
   currentUser: User | null;
-  onGoHome: (tab?: 'mock' | 'practice') => void;
+  onGoHome: (tab?: 'mock' | 'practice' | 'subjtest') => void;
   onLogout: () => void;
 }
 
@@ -28,39 +28,51 @@ export const Navbar: React.FC<NavbarProps> = ({ activeView, homeTab, currentUser
               UPSC<span className="text-indigo-400 font-bold ml-1">PrepLab</span>
             </span>
             <span className="hidden sm:inline-block text-[10px] uppercase tracking-widest text-indigo-400/80 font-semibold ml-2 px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800/40">
-              Mocks & Subject Practice
+              Exam Simulator & Practice
             </span>
           </div>
         </div>
 
-        <nav className="flex items-center space-x-2 sm:space-x-3">
+        <nav className="flex items-center space-x-1.5 sm:space-x-3">
           <button
             onClick={() => onGoHome('mock')}
-            className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors ${
+            className={`flex items-center space-x-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors ${
               activeView === 'home' && homeTab === 'mock'
                 ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/30'
                 : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
             }`}
           >
             <BookOpen className="w-4 h-4" />
-            <span>Full Mocks (PYQs)</span>
+            <span className="hidden sm:inline">Year Mocks</span>
+          </button>
+
+          <button
+            onClick={() => onGoHome('subjtest')}
+            className={`flex items-center space-x-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors ${
+              activeView === 'home' && homeTab === 'subjtest'
+                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/30'
+                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            <Clock className="w-4 h-4 text-purple-300" />
+            <span>Subject Tests</span>
           </button>
 
           <button
             onClick={() => onGoHome('practice')}
-            className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors ${
+            className={`flex items-center space-x-1.5 px-3 sm:px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-colors ${
               (activeView === 'home' && homeTab === 'practice') || activeView === 'practice'
                 ? 'bg-cyan-600 text-white shadow-md shadow-cyan-600/30'
                 : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
             }`}
           >
             <Sparkles className="w-4 h-4 text-cyan-400" />
-            <span>Subject Practice</span>
+            <span className="hidden md:inline">Instant Practice</span>
           </button>
 
           {currentUser && (
             <div className="flex items-center space-x-3 pl-2 sm:pl-3 border-l border-slate-800">
-              <div className="hidden sm:flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-indigo-300">
+              <div className="hidden lg:flex items-center space-x-2 px-3 py-1.5 rounded-xl bg-slate-900 border border-slate-800 text-xs font-semibold text-indigo-300">
                 <UserIcon className="w-3.5 h-3.5 text-indigo-400" />
                 <span className="capitalize">{currentUser.username}</span>
               </div>

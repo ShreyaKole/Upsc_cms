@@ -3,6 +3,7 @@ import { Navbar } from './components/layout/Navbar';
 import { Hero } from './components/home/Hero';
 import { GlobalStats } from './components/home/GlobalStats';
 import { PaperCard } from './components/home/PaperCard';
+import { SubjectTestCard } from './components/home/SubjectTestCard';
 import { TestHeader } from './components/test/TestHeader';
 import { QuestionCard } from './components/test/QuestionCard';
 import { QuestionPalette } from './components/test/QuestionPalette';
@@ -18,19 +19,22 @@ import { PAPERS, QUESTIONS_DATABASE } from './data/papers';
 import { ExamManager } from './store/examStore';
 import { AuthManager } from './store/authStore';
 import { PracticeManager } from './store/practiceStore';
+import { SubjectTestManager } from './store/subjectTestStore';
 import type { Paper, ExamSession, ExamResult, OptionKey, User, Subject } from './types';
-import { ArrowLeft, BookOpen, Sparkles } from 'lucide-react';
+import { ArrowLeft, BookOpen, Clock, Sparkles } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [view, setView] = useState<'home' | 'test' | 'analysis' | 'practice'>('home');
-  const [homeTab, setHomeTab] = useState<'mock' | 'practice'>('mock');
+  const [homeTab, setHomeTab] = useState<'mock' | 'practice' | 'subjtest'>('mock');
   const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null);
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [activeSession, setActiveSession] = useState<ExamSession | null>(null);
   const [activeResult, setActiveResult] = useState<ExamResult | null>(null);
   const [resultsHistory, setResultsHistory] = useState<ExamResult[]>([]);
   const [isSubmitModalOpen, setIsSubmitModalOpen] = useState(false);
+
+  const subjectTestPapers = SubjectTestManager.getSubjectTestPapers();
 
   useEffect(() => {
     const user = AuthManager.getCurrentUser();
@@ -78,7 +82,7 @@ export const App: React.FC = () => {
     setView('home');
   };
 
-  const handleGoHome = (tab?: 'mock' | 'practice') => {
+  const handleGoHome = (tab?: 'mock' | 'practice' | 'subjtest') => {
     if (tab) setHomeTab(tab);
     setView('home');
   };
@@ -202,7 +206,7 @@ export const App: React.FC = () => {
     const result = ExamManager.getResultById(currentUser.id, resultId);
     if (result) {
       setActiveResult(result);
-      const matchingPaper = PAPERS.find((p) => p.id === result.paperId);
+      const matchingPaper = PAPERS.find((p) => p.id === result.paperId) || subjectTestPapers.find((p) => p.id === result.paperId);
       if (matchingPaper) setSelectedPaper(matchingPaper);
       setView('analysis');
     }
@@ -231,37 +235,49 @@ export const App: React.FC = () => {
             <GlobalStats results={resultsHistory} />
 
             <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 pb-4 border-b border-slate-800">
+              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-8 pb-4 border-b border-slate-800">
                 <div>
                   <h2 className="text-2xl font-bold text-white tracking-tight">
-                    {homeTab === 'mock' ? 'UPSC Yearly Official Question Papers' : 'Subject-Wise Practice Banks'}
+                    {homeTab === 'mock' && 'UPSC Yearly Official Question Papers'}
+                    {homeTab === 'subjtest' && 'Subject-Wise Timed Mock Tests (120-Q Chunks)'}
+                    {homeTab === 'practice' && 'Subject-Wise Instant Practice Banks'}
                   </h2>
                   <p className="text-sm text-slate-400 mt-1">
-                    {homeTab === 'mock'
-                      ? 'Select any paper below to attempt live simulated 2-hour official tests.'
-                      : 'Select a subject below for topic revision with instant answer feedback and clinical rationale.'}
+                    {homeTab === 'mock' && 'Select any year paper to attempt live simulated 2-hour official tests.'}
+                    {homeTab === 'subjtest' && 'Attempt sequential 120-question timed subject exams generated from all combined PYQs.'}
+                    {homeTab === 'practice' && 'Topic revision with instant answer feedback and clinical rationale.'}
                   </p>
                 </div>
 
-                <div className="flex items-center space-x-2 bg-slate-900 p-1.5 rounded-2xl border border-slate-800 self-start sm:self-auto">
+                <div className="flex flex-wrap items-center gap-1.5 bg-slate-900 p-1.5 rounded-2xl border border-slate-800 self-start lg:self-auto">
                   <button
                     onClick={() => setHomeTab('mock')}
-                    className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                    className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
                       homeTab === 'mock' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'text-slate-400 hover:text-white'
                     }`}
                   >
-                    <BookOpen className="w-4 h-4" />
-                    <span>Full Mock Exams</span>
+                    <BookOpen className="w-3.5 h-3.5" />
+                    <span>Full Year Mocks</span>
+                  </button>
+
+                  <button
+                    onClick={() => setHomeTab('subjtest')}
+                    className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+                      homeTab === 'subjtest' ? 'bg-purple-600 text-white shadow-lg shadow-purple-600/30' : 'text-slate-400 hover:text-white'
+                    }`}
+                  >
+                    <Clock className="w-3.5 h-3.5 text-purple-300" />
+                    <span>Subject Timed Tests</span>
                   </button>
 
                   <button
                     onClick={() => setHomeTab('practice')}
-                    className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all ${
+                    className={`flex items-center space-x-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
                       homeTab === 'practice' ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-600/30' : 'text-slate-400 hover:text-white'
                     }`}
                   >
-                    <Sparkles className="w-4 h-4 text-cyan-300" />
-                    <span>Subject Practice</span>
+                    <Sparkles className="w-3.5 h-3.5 text-cyan-300" />
+                    <span>Instant Practice</span>
                   </button>
                 </div>
               </div>
@@ -272,6 +288,23 @@ export const App: React.FC = () => {
                     const latestRes = resultsHistory.find((r) => r.paperId === paper.id);
                     return (
                       <PaperCard
+                        key={paper.id}
+                        paper={paper}
+                        latestResult={latestRes}
+                        onStartTest={handleStartTest}
+                        onViewAnalysis={handleViewAnalysis}
+                      />
+                    );
+                  })}
+                </div>
+              )}
+
+              {homeTab === 'subjtest' && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {subjectTestPapers.map((paper) => {
+                    const latestRes = resultsHistory.find((r) => r.paperId === paper.id);
+                    return (
+                      <SubjectTestCard
                         key={paper.id}
                         paper={paper}
                         latestResult={latestRes}
@@ -381,7 +414,7 @@ export const App: React.FC = () => {
             <ScoreCard
               result={activeResult}
               onRetake={() => {
-                const p = PAPERS.find((item) => item.id === activeResult.paperId);
+                const p = PAPERS.find((item) => item.id === activeResult.paperId) || subjectTestPapers.find((item) => item.id === activeResult.paperId);
                 if (p) handleStartTest(p);
               }}
             />
